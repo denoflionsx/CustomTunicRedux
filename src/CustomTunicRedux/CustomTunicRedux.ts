@@ -61,8 +61,8 @@ class CustomTunicRedux implements IPlugin {
     @TunnelMessageHandler("CustomTunicRedux:DataUpdate")
     onDataUpdate(packet: ColorPacket) {
         this.setColor(packet.colors.kokiri, 0);
-        this.setColor(packet.colors.goron, 0);
-        this.setColor(packet.colors.zora, 0);
+        this.setColor(packet.colors.goron, 1);
+        this.setColor(packet.colors.zora, 2);
     }
 
 }
