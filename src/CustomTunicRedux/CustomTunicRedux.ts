@@ -2,9 +2,15 @@ import { IPlugin, IModLoaderAPI } from 'modloader64_api/IModLoaderAPI';
 import path from 'path';
 import { TunnelMessageHandler } from 'modloader64_api/GUITunnel';
 
+class Tunics{
+    kokiri!: string;
+    goron!: string;
+    zora!: string;
+}
+
 class ColorPacket {
     id!: string;
-    colors!: any;
+    colors!: Tunics;
 }
 
 function hexToRgb(hex: string) {
@@ -43,14 +49,20 @@ class CustomTunicRedux implements IPlugin {
     onTick(frame?: number | undefined): void {
     }
 
-    @TunnelMessageHandler("CustomTunicRedux:DataUpdate")
-    onDataUpdate(packet: ColorPacket) {
+    private setColor(hex: string, index: number){
         let k: Buffer = Buffer.alloc(0x3);
-        let rgb = hexToRgb(packet.colors.kokiri);
+        let rgb = hexToRgb(hex);
         k.writeUInt8(rgb!.r, 0);
         k.writeUInt8(rgb!.g, 1);
         k.writeUInt8(rgb!.b, 2);
-        this.ModLoader.emulator.rdramWriteBuffer(0x800F7AD8, k);
+        this.ModLoader.emulator.rdramWriteBuffer(0x800F7AD8 + (index * 0x3), k);
+    }
+
+    @TunnelMessageHandler("CustomTunicRedux:DataUpdate")
+    onDataUpdate(packet: ColorPacket) {
+        this.setColor(packet.colors.kokiri, 0);
+        this.setColor(packet.colors.goron, 0);
+        this.setColor(packet.colors.zora, 0);
     }
 
 }

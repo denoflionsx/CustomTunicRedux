@@ -8,5 +8,13 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hylian-modding/CustomTunicRedux.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hylian-modding/CustomTunicRedux/issues"
+  },
+  "homepage": "https://github.com/hylian-modding/CustomTunicRedux#readme"
 }

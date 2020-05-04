@@ -38,6 +38,21 @@ class MapMessageHandlers {
     tunicValues["zora"] = zora.value;
   }
 
+  kokiri.onchange = ()=> {
+    tunicValues["kokiri"] = kokiri.value;
+    handlers.tunnel.send("forwardToML", {id: "CustomTunicRedux:DataUpdate", colors: tunicValues});
+  }
+
+  goron.onchange = ()=> {
+    tunicValues["goron"] = goron.value;
+    handlers.tunnel.send("forwardToML", {id: "CustomTunicRedux:DataUpdate", colors: tunicValues});
+  }
+
+  zora.onchange = ()=> {
+    tunicValues["zora"] = zora.value;
+    handlers.tunnel.send("forwardToML", {id: "CustomTunicRedux:DataUpdate", colors: tunicValues});
+  }
+
   handlers.tunnel.send("forwardToML", {id: "CustomTunicRedux:DataUpdate", colors: tunicValues});
 
   module.exports = hooks;
