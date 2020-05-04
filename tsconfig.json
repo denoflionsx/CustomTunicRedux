@@ -15,6 +15,9 @@
     "paths": {
       "@CustomTunicRedux/*": [
         "./src/CustomTunicRedux/*"
+      ],
+      "Z64Lib/*": [
+        "libs\\Z64Lib/*"
       ]
     }
   },

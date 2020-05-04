@@ -11,48 +11,67 @@ const hooks = {
 };
 
 class MapMessageHandlers {
-    tunnel: MessageLayer;
-  
-    constructor() {
-      this.tunnel = new MessageLayer('CustomTunicRedux', ipc, ipc);
-      this.tunnel.setupMessageProcessor(this);
+  tunnel: MessageLayer;
+
+  constructor() {
+    this.tunnel = new MessageLayer('CustomTunicRedux', ipc, ipc);
+    this.tunnel.setupMessageProcessor(this);
+  }
+
+  @TunnelMessageHandler("CustomTunicRedux:UpdateIcon")
+  onIconUpdate(evt: any) {
+    let e: HTMLImageElement;
+    switch (evt.index) {
+      case 0:
+        e = document.getElementById("icon_kokiri") as HTMLImageElement;
+        e.src = evt.result;
+        break;
+      case 1:
+        e = document.getElementById("icon_goron") as HTMLImageElement;
+        e.src = evt.result;
+        break;
+      case 2:
+        e = document.getElementById("icon_zora") as HTMLImageElement;
+        e.src = evt.result;
+        break;
     }
   }
-  
-  const handlers = new MapMessageHandlers();
+}
 
-  const tunicValues: any = {};
+const handlers = new MapMessageHandlers();
 
-  let kokiri: HTMLInputElement = document.getElementById("kokiri") as HTMLInputElement;
-  if (kokiri !== null){
-    tunicValues["kokiri"] = kokiri.value;
-  }
+const tunicValues: any = {};
 
-  let goron: HTMLInputElement = document.getElementById("goron") as HTMLInputElement;
-  if (goron !== null){
-    tunicValues["goron"] = goron.value;
-  }
+let kokiri: HTMLInputElement = document.getElementById("kokiri") as HTMLInputElement;
+if (kokiri !== null) {
+  tunicValues["kokiri"] = kokiri.value;
+}
 
-  let zora: HTMLInputElement = document.getElementById("zora") as HTMLInputElement;
-  if (zora !== null){
-    tunicValues["zora"] = zora.value;
-  }
+let goron: HTMLInputElement = document.getElementById("goron") as HTMLInputElement;
+if (goron !== null) {
+  tunicValues["goron"] = goron.value;
+}
 
-  kokiri.onchange = ()=> {
-    tunicValues["kokiri"] = kokiri.value;
-    handlers.tunnel.send("forwardToML", {id: "CustomTunicRedux:DataUpdate", colors: tunicValues});
-  }
+let zora: HTMLInputElement = document.getElementById("zora") as HTMLInputElement;
+if (zora !== null) {
+  tunicValues["zora"] = zora.value;
+}
 
-  goron.onchange = ()=> {
-    tunicValues["goron"] = goron.value;
-    handlers.tunnel.send("forwardToML", {id: "CustomTunicRedux:DataUpdate", colors: tunicValues});
-  }
+kokiri.onchange = () => {
+  tunicValues["kokiri"] = kokiri.value;
+  handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: tunicValues });
+}
 
-  zora.onchange = ()=> {
-    tunicValues["zora"] = zora.value;
-    handlers.tunnel.send("forwardToML", {id: "CustomTunicRedux:DataUpdate", colors: tunicValues});
-  }
+goron.onchange = () => {
+  tunicValues["goron"] = goron.value;
+  handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: tunicValues });
+}
 
-  handlers.tunnel.send("forwardToML", {id: "CustomTunicRedux:DataUpdate", colors: tunicValues});
+zora.onchange = () => {
+  tunicValues["zora"] = zora.value;
+  handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: tunicValues });
+}
 
-  module.exports = hooks;
+handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: tunicValues });
+
+module.exports = hooks;

@@ -9,5 +9,12 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "core": "OcarinaofTime"
+  "core": "OcarinaofTime",
+  "modloader64_deps": {
+    "Z64Lib": "https://github.com/hylian-modding/ML64-Z64Lib"
+  },
+  "dependencies": {
+    "color-convert": "^2.0.1",
+    "jimp": "^0.10.3"
+  }
 }
