@@ -89,7 +89,7 @@ class CustomTunicRedux implements IPlugin {
                 this.ModLoader.logger.debug("Calculating tunic icons.");
             } else {
                 this.ModLoader.logger.debug("Updating tunic icons.");
-                let rom = this.ModLoader.rom.romReadBuffer(0, (32 * 1024 * 1024));
+                let rom = this.ModLoader.rom.romReadBuffer(0, 0x844710);
                 let tools: Z64RomTools = new Z64RomTools(this.ModLoader, 0x7430);
                 let i = tools.decompressFileFromRom(rom, 8);
                 this.workingBuffer.copy(i);
