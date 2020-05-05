@@ -16,5 +16,6 @@
   "dependencies": {
     "color-convert": "^2.0.1",
     "jimp": "^0.10.3"
-  }
+  },
+  "updateUrl": "https://nexus.inpureprojects.info/ModLoader64/mods/CustomTunicRedux/update/update.json"
 }
