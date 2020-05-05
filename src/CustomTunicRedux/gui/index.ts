@@ -18,6 +18,12 @@ class MapMessageHandlers {
     this.tunnel.setupMessageProcessor(this);
   }
 
+  @TunnelMessageHandler("CustomTunicRedux:ColorUpdate")
+  onColorUpdate(evt: any){
+    let e = document.getElementById(evt.tunic) as HTMLInputElement;
+    e.value = evt.value;
+  }
+
   @TunnelMessageHandler("CustomTunicRedux:UpdateIcon")
   onIconUpdate(evt: any) {
     let e: HTMLImageElement;
@@ -71,7 +77,5 @@ zora.onchange = () => {
   tunicValues["zora"] = zora.value;
   handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: tunicValues });
 }
-
-handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: tunicValues });
 
 module.exports = hooks;

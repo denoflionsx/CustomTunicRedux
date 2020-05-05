@@ -61,6 +61,12 @@ function zh_color_rgb2hsv(rgba: rgba): hsvf_t {
     return new hsvf_t().fromArray(convert.rgb.hsv(rgba.r, rgba.g, rgba.b));
 }
 
+interface CustomTunicRedux_Config{
+    kokiri: string;
+    goron: string;
+    zora: string;
+}
+
 class CustomTunicRedux implements IPlugin {
 
     ModLoader!: IModLoaderAPI;
@@ -71,10 +77,15 @@ class CustomTunicRedux implements IPlugin {
     iconBank!: Buffer;
     baseTunic!: Buffer;
     workingBuffer!: Buffer;
+    config!: CustomTunicRedux_Config
 
     preinit(): void {
     }
     init(): void {
+        this.config = this.ModLoader.config.registerConfigCategory("CustomTunicRedux") as CustomTunicRedux_Config;
+        this.ModLoader.config.setData("CustomTunicRedux", "kokiri", "#1e691b"); 
+        this.ModLoader.config.setData("CustomTunicRedux", "goron", "#641400");
+        this.ModLoader.config.setData("CustomTunicRedux", "zora", "#003c64");
     }
     postinit(): void {
         this.ModLoader.gui.openWindow(300, 300, path.resolve(__dirname, "gui", "index.html"));
@@ -120,6 +131,10 @@ class CustomTunicRedux implements IPlugin {
         this.addToQueue(this.workingBuffer, k, 0);
         this.addToQueue(this.workingBuffer, g, 1);
         this.addToQueue(this.workingBuffer, z, 2);
+        this.ModLoader.config.setData("CustomTunicRedux", "kokiri", packet.colors.kokiri, true); 
+        this.ModLoader.config.setData("CustomTunicRedux", "goron", packet.colors.goron, true);
+        this.ModLoader.config.setData("CustomTunicRedux", "zora", packet.colors.zora, true);
+        this.ModLoader.config.save();
     }
 
     addToQueue(icons: Buffer, k: rgba, index: number) {
@@ -182,14 +197,17 @@ class CustomTunicRedux implements IPlugin {
 
     @EventHandler(OotEvents.ON_SAVE_LOADED)
     onSave() {
-/*         let k = this.setColor("#FF00FF", 0);
-        let g = this.setColor("#FF00FF", 1);
-        let z = this.setColor("#FF00FF", 2);
+        let k = this.setColor(this.config.kokiri, 0);
+        let g = this.setColor(this.config.goron, 1);
+        let z = this.setColor(this.config.zora, 2);
         this.isUpdatingRom = true;
         this.ModLoader.utils.cloneBuffer(this.iconBank).copy(this.workingBuffer);
         this.addToQueue(this.workingBuffer, k, 0);
         this.addToQueue(this.workingBuffer, g, 1);
-        this.addToQueue(this.workingBuffer, z, 2); */
+        this.addToQueue(this.workingBuffer, z, 2);
+        this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "kokiri", value: this.config.kokiri});
+        this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "goron", value: this.config.goron});
+        this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "zora", value: this.config.zora});
     }
 
 }
