@@ -65,6 +65,7 @@ interface CustomTunicRedux_Config{
     kokiri: string;
     goron: string;
     zora: string;
+    gauntlets: string;
 }
 
 class CustomTunicRedux implements IPlugin {
@@ -86,6 +87,7 @@ class CustomTunicRedux implements IPlugin {
         this.ModLoader.config.setData("CustomTunicRedux", "kokiri", "#1e691b"); 
         this.ModLoader.config.setData("CustomTunicRedux", "goron", "#641400");
         this.ModLoader.config.setData("CustomTunicRedux", "zora", "#003c64");
+        this.ModLoader.config.setData("CustomTunicRedux", "gauntlets", "#ffffff");
     }
     postinit(): void {
         this.ModLoader.gui.openWindow(300, 300, path.resolve(__dirname, "gui", "index.html"));
@@ -134,6 +136,7 @@ class CustomTunicRedux implements IPlugin {
         this.ModLoader.config.setData("CustomTunicRedux", "kokiri", packet.colors.kokiri, true); 
         this.ModLoader.config.setData("CustomTunicRedux", "goron", packet.colors.goron, true);
         this.ModLoader.config.setData("CustomTunicRedux", "zora", packet.colors.zora, true);
+        this.ModLoader.config.setData("CustomTunicRedux", "gauntlets", packet.colors.gauntlets, true);
         this.ModLoader.config.save();
     }
 
@@ -208,6 +211,7 @@ class CustomTunicRedux implements IPlugin {
         this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "kokiri", value: this.config.kokiri});
         this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "goron", value: this.config.goron});
         this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "zora", value: this.config.zora});
+        this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {gauntlets: "gauntlets", value: this.config.gauntlets});
     }
 
 }

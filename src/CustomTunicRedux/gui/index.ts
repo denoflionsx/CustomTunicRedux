@@ -63,6 +63,11 @@ if (zora !== null) {
   tunicValues["zora"] = zora.value;
 }
 
+let gauntlets: HTMLInputElement = document.getElementById("gauntlets") as HTMLInputElement;
+if (gauntlets !== null) {
+  gauntletValues["gauntlets"] = gauntlets.value;
+}
+
 kokiri.onchange = () => {
   tunicValues["kokiri"] = kokiri.value;
   handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: tunicValues });
@@ -76,6 +81,10 @@ goron.onchange = () => {
 zora.onchange = () => {
   tunicValues["zora"] = zora.value;
   handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: tunicValues });
+}
+gauntlets.onchange = () => {
+  gauntletValues["gauntlets"] = gauntlets.value;
+  handlers.tunnel.send("forwardToML", { id: "CustomTunicRedux:DataUpdate", colors: gauntletValues });
 }
 
 module.exports = hooks;
