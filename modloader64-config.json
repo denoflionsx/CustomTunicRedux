@@ -13,7 +13,8 @@
   },
   "NetworkEngine.Server": {
     "port": 8082,
-    "udpPort": 8082
+    "udpPort": 8082,
+    "patchSizeLimitMB": 10
   },
   "NetworkEngine.Client": {
     "isSinglePlayer": false,
@@ -23,5 +24,14 @@
     "lobby": "bowl-dental-86",
     "nickname": "Player",
     "password": ""
+  },
+  "OcarinaofTime": {
+    "skipN64Logo": true
+  },
+  "CustomTunicRedux": {
+    "kokiri": "#653865",
+    "goron": "#641400",
+    "zora": "#003c64",
+    "gauntlets": "#ffffff"
   }
 }

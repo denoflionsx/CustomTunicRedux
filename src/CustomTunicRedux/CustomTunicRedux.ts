@@ -1,67 +1,50 @@
 import { IPlugin, IModLoaderAPI, ModLoaderEvents } from 'modloader64_api/IModLoaderAPI';
-import path from 'path';
-import { TunnelMessageHandler } from 'modloader64_api/GUITunnel';
 import { EventHandler } from 'modloader64_api/EventHandler';
-import { Z64RomTools, DMATable } from 'Z64Lib/API/Z64RomTools';
-import fs from 'fs';
-import Jimp from 'jimp';
-import { OotEvents } from 'modloader64_api/OOT/OOTAPI';
-var convert = require('color-convert');
+import { onViUpdate } from 'modloader64_api/PluginLifecycle';
+import { OotEvents, IOOTCore } from 'modloader64_api/OOT/OOTAPI';
+import { vec4, rgba } from 'modloader64_api/Sylvain/vec';
+import { InjectCore } from 'modloader64_api/CoreInjection';
 
-class Tunics {
-    kokiri!: string;
-    goron!: string;
-    zora!: string;
-}
-
-class ColorPacket {
-    id!: string;
-    colors!: Tunics;
-}
-
-class rgba {
+class rgbaCTR {
     r!: number;
     g!: number;
     b!: number;
     a!: number;
 
-    fromArray(arr: Array<number>): rgba {
+    fromArray(arr: Array<number>): rgbaCTR {
         this.r = arr[0];
         this.g = arr[1];
         this.b = arr[2];
         this.a = 0xFF;
         return this;
     }
-}
 
-class hsvf_t {
-    h!: number;
-    s!: number;
-    v!: number;
-
-    fromArray(arr: Array<number>): hsvf_t {
-        this.h = arr[0];
-        this.s = arr[1];
-        this.v = arr[2];
+    fromVec4(vec: vec4) {
+        let v = 1 / 255;
+        this.r = vec.x / v;
+        this.g = vec.y / v;
+        this.b = vec.z / v;
+        this.a = vec.w / v;
         return this;
     }
 }
 
-function hexToRgb(hex: string): rgba {
+function hexToRgb(hex: string): rgbaCTR {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     let arr = [parseInt(result![1], 16), parseInt(result![2], 16), parseInt(result![3], 16)]
-    return new rgba().fromArray(arr);
+    return new rgbaCTR().fromArray(arr);
 }
 
-function zh_color_hsv2rgb(h: number, s: number, v: number) {
-    return new rgba().fromArray(convert.hsv.rgb(h, s, v));
+function RgbtoHex(vec: vec4): string{
+    let v = 1 / 255;
+    return "#" + hexPadding2(Math.floor(vec.x / v)) + hexPadding2(Math.floor(vec.y / v)) + hexPadding2(Math.floor(vec.z / v));
 }
 
-function zh_color_rgb2hsv(rgba: rgba): hsvf_t {
-    return new hsvf_t().fromArray(convert.rgb.hsv(rgba.r, rgba.g, rgba.b));
+function hexPadding2(i: number): string {
+    return ('00' + i.toString(16)).substr(-2).toUpperCase();
 }
 
-interface CustomTunicRedux_Config{
+interface CustomTunicRedux_Config {
     kokiri: string;
     goron: string;
     zora: string;
@@ -79,38 +62,77 @@ class CustomTunicRedux implements IPlugin {
     baseTunic!: Buffer;
     workingBuffer!: Buffer;
     config!: CustomTunicRedux_Config
+    // ImGui
+    kokiri: vec4 = rgba(0, 0, 0, 0);
+    goron: vec4 = rgba(0, 0, 0, 0);
+    zora: vec4 = rgba(0, 0, 0, 0);
+    saveNext: boolean = false;
+    @InjectCore()
+    core!: IOOTCore;
 
     preinit(): void {
     }
     init(): void {
         this.config = this.ModLoader.config.registerConfigCategory("CustomTunicRedux") as CustomTunicRedux_Config;
-        this.ModLoader.config.setData("CustomTunicRedux", "kokiri", "#1e691b"); 
+        this.ModLoader.config.setData("CustomTunicRedux", "kokiri", "#1e691b");
         this.ModLoader.config.setData("CustomTunicRedux", "goron", "#641400");
         this.ModLoader.config.setData("CustomTunicRedux", "zora", "#003c64");
         this.ModLoader.config.setData("CustomTunicRedux", "gauntlets", "#ffffff");
     }
     postinit(): void {
-        this.ModLoader.gui.openWindow(300, 300, path.resolve(__dirname, "gui", "index.html"));
     }
     onTick(frame?: number | undefined): void {
-        if (this.queue.length > 0 && this.ready) {
-            let a = this.queue.pop()!;
-            a();
+    }
+
+    @EventHandler(OotEvents.ON_SCENE_CHANGE)
+    onSceneChange(){
+        if (this.saveNext){
+            this.ModLoader.config.save();
         }
-        if (this.lastStatus !== this.isUpdatingRom) {
-            if (this.isUpdatingRom) {
-                this.ModLoader.logger.debug("Calculating tunic icons.");
-            } else {
-                this.ModLoader.logger.debug("Updating tunic icons.");
-                let rom = this.ModLoader.rom.romReadBuffer(0, 0x844710);
-                let tools: Z64RomTools = new Z64RomTools(this.ModLoader, 0x7430);
-                let i = tools.decompressFileFromRom(rom, 8);
-                this.workingBuffer.copy(i);
-                tools.recompressFileIntoRom(rom, 8, i);
-                this.ModLoader.rom.romWriteBuffer(0, rom);
+    }
+
+    @onViUpdate()
+    onVi() {
+        try{
+            if (this.ModLoader.ImGui.beginMainMenuBar()) {
+                if (this.ModLoader.ImGui.beginMenu("Mods")) {
+                    if (this.ModLoader.ImGui.beginMenu("Custom Tunic Redux")) {
+                        if (this.ModLoader.ImGui.beginMenu("Kokiri Tunic")){
+                            if (this.ModLoader.ImGui.colorPicker4("Kokiri Tunic", this.kokiri, undefined, this.kokiri)) {
+                                let a = RgbtoHex(this.kokiri);
+                                this.ModLoader.config.setData("CustomTunicRedux", "kokiri", a, true);
+                                this.setColor(a, 0);
+                                this.saveNext = true;
+                            }
+                            this.ModLoader.ImGui.endMenu();
+                        }
+                        if (this.ModLoader.ImGui.beginMenu("Goron Tunic")){
+                            if (this.ModLoader.ImGui.colorPicker4("Goron Tunic", this.goron, undefined, this.goron)) {
+                                let a = RgbtoHex(this.goron);
+                                this.ModLoader.config.setData("CustomTunicRedux", "goron", a, true);
+                                this.setColor(a, 1);
+                                this.saveNext = true;
+                            }
+                            this.ModLoader.ImGui.endMenu();
+                        }
+                        if (this.ModLoader.ImGui.beginMenu("Zora Tunic")){
+                            if (this.ModLoader.ImGui.colorPicker4("Zora Tunic", this.zora, undefined, this.zora)) {
+                                let a = RgbtoHex(this.zora);
+                                this.ModLoader.config.setData("CustomTunicRedux", "zora", a, true);
+                                this.setColor(a, 2);
+                                this.saveNext = true;
+                            }
+                            this.ModLoader.ImGui.endMenu();
+                        }
+                        this.ModLoader.ImGui.endMenu();
+                    }
+                    this.ModLoader.ImGui.endMenu();
+                }
+                this.ModLoader.ImGui.endMainMenuBar();
             }
+        }catch(err){
+            console.log(err.stack);
         }
-        this.lastStatus = this.isUpdatingRom;
     }
 
     private setColor(hex: string, index: number) {
@@ -123,95 +145,14 @@ class CustomTunicRedux implements IPlugin {
         return rgb;
     }
 
-    @TunnelMessageHandler("CustomTunicRedux:DataUpdate")
-    onDataUpdate(packet: ColorPacket) {
-        let k = this.setColor(packet.colors.kokiri, 0);
-        let g = this.setColor(packet.colors.goron, 1);
-        let z = this.setColor(packet.colors.zora, 2);
-        this.isUpdatingRom = true;
-        this.ModLoader.utils.cloneBuffer(this.iconBank).copy(this.workingBuffer);
-        this.addToQueue(this.workingBuffer, k, 0);
-        this.addToQueue(this.workingBuffer, g, 1);
-        this.addToQueue(this.workingBuffer, z, 2);
-        this.ModLoader.config.setData("CustomTunicRedux", "kokiri", packet.colors.kokiri, true); 
-        this.ModLoader.config.setData("CustomTunicRedux", "goron", packet.colors.goron, true);
-        this.ModLoader.config.setData("CustomTunicRedux", "zora", packet.colors.zora, true);
-        this.ModLoader.config.setData("CustomTunicRedux", "gauntlets", packet.colors.gauntlets, true);
-        this.ModLoader.config.save();
-    }
-
-    addToQueue(icons: Buffer, k: rgba, index: number) {
-        let a = () => {
-            this.ready = false;
-            let png = new Jimp(32, 32, (err, image) => {
-                image.bitmap.data = this.ModLoader.utils.cloneBuffer(this.baseTunic);
-                image.scan(0, 0, image.bitmap.width, image.bitmap.height, (x, y, idx) => {
-                    let pixel = new rgba();
-                    pixel.r = image.bitmap.data[idx + 0];
-                    pixel.g = image.bitmap.data[idx + 1];
-                    pixel.b = image.bitmap.data[idx + 2];
-                    pixel.a = image.bitmap.data[idx + 3];
-                    if (pixel.a > 0) {
-                        if (pixel.r === 0 && pixel.g === 0 && pixel.b === 0) {
-                            return;
-                        }
-                        let source = zh_color_rgb2hsv(pixel);
-
-                        if (source.h > 60) {
-                            pixel.r = k.r;
-                            pixel.g = k.g;
-                            pixel.b = k.b;
-                            pixel.a = k.a;
-
-                            let hsv = zh_color_rgb2hsv(pixel);
-                            hsv.s = source.s;
-                            hsv.v = source.v;
-                            pixel = zh_color_hsv2rgb(hsv.h, hsv.s, hsv.v);
-
-                            image.bitmap.data[idx + 0] = pixel.r;
-                            image.bitmap.data[idx + 1] = pixel.g;
-                            image.bitmap.data[idx + 2] = pixel.b;
-                        }
-                    }
-                });
-                image.bitmap.data.copy(icons, 0x41000 + (index * 0x1000));
-                image.getBase64("image/png", (err: Error | null, result: string)=>{
-                    this.ModLoader.gui.tunnel.send("CustomTunicRedux:UpdateIcon", {index, result});
-                });
-                this.ready = true;
-                if (this.queue.length === 0) {
-                    this.isUpdatingRom = false;
-                }
-            });
-        };
-        this.queue.push(a);
-    }
-
-    @EventHandler(ModLoaderEvents.ON_ROM_PATCHED_POST)
-    onRomPatched(evt: any) {
-        let tools: Z64RomTools = new Z64RomTools(this.ModLoader, 0x7430);
-        let i = tools.decompressFileFromRom(evt.rom, 8);
-        this.iconBank = Buffer.alloc(i.byteLength);
-        i.copy(this.iconBank);
-        this.baseTunic = Buffer.alloc(0x1000);
-        this.iconBank.copy(this.baseTunic, 0, 0x41000, 0x41000 + 0x1000);
-        this.workingBuffer = Buffer.alloc(this.iconBank.byteLength);
-    }
-
     @EventHandler(OotEvents.ON_SAVE_LOADED)
     onSave() {
         let k = this.setColor(this.config.kokiri, 0);
         let g = this.setColor(this.config.goron, 1);
         let z = this.setColor(this.config.zora, 2);
-        this.isUpdatingRom = true;
-        this.ModLoader.utils.cloneBuffer(this.iconBank).copy(this.workingBuffer);
-        this.addToQueue(this.workingBuffer, k, 0);
-        this.addToQueue(this.workingBuffer, g, 1);
-        this.addToQueue(this.workingBuffer, z, 2);
-        this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "kokiri", value: this.config.kokiri});
-        this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "goron", value: this.config.goron});
-        this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {tunic: "zora", value: this.config.zora});
-        this.ModLoader.gui.tunnel.send("CustomTunicRedux:ColorUpdate", {gauntlets: "gauntlets", value: this.config.gauntlets});
+        this.kokiri = rgba(k.r, k.g, k.b, k.a);
+        this.goron = rgba(g.r, g.g, g.b, g.a);
+        this.zora = rgba(z.r, z.g, z.b, z.a);
     }
 
 }
