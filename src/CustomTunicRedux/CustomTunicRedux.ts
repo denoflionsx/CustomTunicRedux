@@ -52,11 +52,10 @@ interface CustomTunicRedux_Config {
     ggauntlets: string;
     a_button: string;
     b_button: string;
-    start_button: string;
     c_buttons: string;
     // map: string;
     magic_meter: string;
-    hearts: string;
+    // hearts: string;
 }
 
 class CustomTunicRedux implements IPlugin {
@@ -79,10 +78,9 @@ class CustomTunicRedux implements IPlugin {
     a_button: vec4 = rgba(0, 0, 0, 0);
     b_button: vec4 = rgba(0, 0, 0, 0);
     c_buttons: vec4 = rgba(0, 0, 0, 0);
-    start_button: vec4 = rgba(0, 0, 0, 0);
     // map: vec4 = rgba(0, 0, 0, 0);
     magic_meter: vec4 = rgba(0, 0, 0, 0);
-    hearts: vec4 = rgba(0, 0, 0, 0);
+    // hearts: vec4 = rgba(0, 0, 0, 0);
     saveNext: boolean = false;
     @InjectCore()
     core!: IOOTCore;
@@ -98,11 +96,10 @@ class CustomTunicRedux implements IPlugin {
         this.ModLoader.config.setData("CustomTunicRedux", "ggauntlets", "#ffffff");
         this.ModLoader.config.setData("CustomTunicRedux", "a_button", "#5a5aff");
         this.ModLoader.config.setData("CustomTunicRedux", "b_button", "#009600");
-        this.ModLoader.config.setData("CustomTunicRedux", "start_button", "#c80000");
         this.ModLoader.config.setData("CustomTunicRedux", "c_buttons", "#ffa000");
         // this.ModLoader.config.setData("CustomTunicRedux", "overworld_map", "#00ffff");
         this.ModLoader.config.setData("CustomTunicRedux", "magic_meter", "#00c800");
-        this.ModLoader.config.setData("CustomTunicRedux", "hearts", "#c80000");
+        // this.ModLoader.config.setData("CustomTunicRedux", "hearts", "#c80000");
     }
     postinit(): void {
     }
@@ -111,6 +108,7 @@ class CustomTunicRedux implements IPlugin {
 
     @EventHandler(OotEvents.ON_SCENE_CHANGE)
     onSceneChange(){
+        this.onSave();
         if (this.saveNext){
             this.ModLoader.config.save();
         }
@@ -197,15 +195,6 @@ class CustomTunicRedux implements IPlugin {
                             }
                             this.ModLoader.ImGui.endMenu();
                         }
-                        if (this.ModLoader.ImGui.beginMenu("Start Button")){
-                            if (this.ModLoader.ImGui.colorPicker4("Start Button", this.start_button, undefined, this.start_button)) {
-                                let a = RgbtoHex(this.start_button);
-                                this.ModLoader.config.setData("CustomTunicRedux", "start_button", a, true);
-                                this.setStartButton(a, 0);
-                                this.saveNext = true;
-                            }
-                            this.ModLoader.ImGui.endMenu();
-                        }
                         // if (this.ModLoader.ImGui.beginMenu("Overworld Map")){
                         //     if (this.ModLoader.ImGui.colorPicker4("Overworld Map", this.map, undefined, this.map)) {
                         //         let a = RgbtoHex(this.map);
@@ -224,15 +213,15 @@ class CustomTunicRedux implements IPlugin {
                             }
                             this.ModLoader.ImGui.endMenu();
                         }
-                        if (this.ModLoader.ImGui.beginMenu("Hearts")){
-                            if (this.ModLoader.ImGui.colorPicker4("Hearts", this.hearts, undefined, this.hearts)) {
-                                let a = RgbtoHex(this.hearts);
-                                this.ModLoader.config.setData("CustomTunicRedux", "hearts", a, true);
-                                this.setHeart(a, 0);
-                                this.saveNext = true;
-                            }
-                            this.ModLoader.ImGui.endMenu();
-                        }
+                        // if (this.ModLoader.ImGui.beginMenu("Hearts")){
+                        //     if (this.ModLoader.ImGui.colorPicker4("Hearts", this.hearts, undefined, this.hearts)) {
+                        //         let a = RgbtoHex(this.hearts);
+                        //         this.ModLoader.config.setData("CustomTunicRedux", "hearts", a, true);
+                        //         this.setHeart(a, 0);
+                        //         this.saveNext = true;
+                        //     }
+                        //     this.ModLoader.ImGui.endMenu();
+                        // }
                         this.ModLoader.ImGui.endMenu();
                     }
                     this.ModLoader.ImGui.endMenu();
@@ -298,15 +287,6 @@ class CustomTunicRedux implements IPlugin {
         this.ModLoader.emulator.rdramWriteBuffer(0x801C7673 + (index * 0x5), k);
         return rgb;
     }
-    private setStartButton(hex: string, index: number) {
-        let k: Buffer = Buffer.alloc(0x5);
-        let rgb = hexToRgb(hex);
-        k.writeUInt8(rgb.r, 0);
-        k.writeUInt8(rgb.g, 2);
-        k.writeUInt8(rgb.b, 4);
-        this.ModLoader.emulator.rdramWriteBuffer(0x80073F66 + (index * 0x5), k);
-        return rgb;
-    }
     // private setMap(hex: string, index: number) {
     //     let k: Buffer = Buffer.alloc(0x3);
     //     let rgb = hexToRgb(hex);
@@ -325,18 +305,18 @@ class CustomTunicRedux implements IPlugin {
         this.ModLoader.emulator.rdramWriteBuffer(0x801C7625 + (index * 0x5), k);
         return rgb;
     }
-    private setHeart(hex: string, index: number) {
-        let k: Buffer = Buffer.alloc(0x5);
-        let rgb = hexToRgb(hex);
-        k.writeUInt8(rgb.r, 0);
-        k.writeUInt8(rgb.g, 2);
-        k.writeUInt8(rgb.b, 4);
-        // this.ModLoader.emulator.rdramWriteBuffer(0x8011BD31 + (index * 0x5), k); //Heartbeat outer
-        // this.ModLoader.emulator.rdramWriteBuffer(0x8011BD39 + (index * 0x5), k); //Heartbeat inner
-        // this.ModLoader.emulator.rdramWriteBuffer(0x8011BD41 + (index * 0x5), k); //Heart outer
-        this.ModLoader.emulator.rdramWriteBuffer(0x8011BD51 + (index * 0x5), k); //Heart inner
-        return rgb;
-    }
+    // private setHeart(hex: string, index: number) {
+    //     let k: Buffer = Buffer.alloc(0x5);
+    //     let rgb = hexToRgb(hex);
+    //     k.writeUInt8(rgb.r, 0);
+    //     k.writeUInt8(rgb.g, 2);
+    //     k.writeUInt8(rgb.b, 4);
+    //     // this.ModLoader.emulator.rdramWriteBuffer(0x8011BD31 + (index * 0x5), k); //Heartbeat outer
+    //     // this.ModLoader.emulator.rdramWriteBuffer(0x8011BD39 + (index * 0x5), k); //Heartbeat inner
+    //     // this.ModLoader.emulator.rdramWriteBuffer(0x8011BD41 + (index * 0x5), k); //Heart outer
+    //     this.ModLoader.emulator.rdramWriteBuffer(0x8011BD51 + (index * 0x5), k); //Heart inner
+    //     return rgb;
+    // }
 
     @EventHandler(OotEvents.ON_SAVE_LOADED)
     onSave() {
@@ -348,10 +328,9 @@ class CustomTunicRedux implements IPlugin {
         let a = this.setAButton(this.config.a_button, 4);
         let b = this.setBButton(this.config.b_button, 5);
         let c = this.setCButton(this.config.c_buttons, 6);
-        let s = this.setStartButton(this.config.start_button, 7);
         // let map = this.setMap(this.config.map, 8);
-        let magic = this.setMagic(this.config.magic_meter, 8);
-        let heart = this.setHeart(this.config.hearts, 9);
+        let magic = this.setMagic(this.config.magic_meter, 7);
+        // let heart = this.setHeart(this.config.hearts, 9);
         this.kokiri = rgba(k.r, k.g, k.b, k.a);
         this.goron = rgba(g.r, g.g, g.b, g.a);
         this.zora = rgba(z.r, z.g, z.b, z.a);
@@ -360,10 +339,9 @@ class CustomTunicRedux implements IPlugin {
         this.a_button = rgba(a.r, a.g, a.b, a.a);
         this.b_button = rgba(b.r, b.g, b.b, b.a);
         this.c_buttons = rgba(c.r, c.g, c.b, c.a);
-        this.start_button = rgba(s.r, s.g, s.b, s.a);
         // this.map = rgba(map.r, map.g, map.b, map.a);
         this.magic_meter = rgba(magic.r, magic.g, magic.b, magic.a);
-        this.hearts = rgba(heart.r, heart.g, heart.b, heart.a);
+        // this.hearts = rgba(heart.r, heart.g, heart.b, heart.a);
     }
 
 }
