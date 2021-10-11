@@ -1,6 +1,6 @@
 {
   "name": "CustomTunicRedux",
-  "version": "1.0.0",
+  "version": "1.0.1-nightly@1226781",
   "description": "",
   "main": "CustomTunicRedux.js",
   "scripts": {
@@ -9,6 +9,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "core": "OcarinaofTime",
-  "updateUrl": "https://nexus.inpureprojects.info/ModLoader64/mods/CustomTunicRedux/update/update.json"
+  "core": "Z64Lib",
+  "date": "Mon, 11 Oct 2021 14:09:46 GMT",
+  "commit": "1226781"
 }

@@ -19,7 +19,8 @@
       "@CustomTunicRedux/*": [
         "./src/CustomTunicRedux/*"
       ]
-    }
+    },
+    "noImplicitAny": false
   },
   "include": [
     "src/**/*.ts",
@@ -27,13 +28,13 @@
     "mods/**/*.ts",
     "cores/**/*.ts",
     "bin/paker.ts",
-    "tools/**/*.ts",
-    "src/modloader/consoles/mupen/resources/test.js"
+    "tools/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "API",
     "build.ts",
-    "build"
+    "build",
+    "cores"
   ]
 }
