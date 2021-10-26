@@ -274,8 +274,8 @@ export default class CustomTunicReduxClient {
         let k = this.setTunic(this.config.kokiri, 0);
         let g = this.setTunic(this.config.goron, 1);
         let z = this.setTunic(this.config.zora, 2);
-        let sgaunt = this.setSGauntlet(this.config.sgauntlets, 3);
-        let ggaunt = this.setGGauntlet(this.config.ggauntlets, 4);
+        let sgaunt = this.setSGauntlet(this.config.sgauntlets, 0);
+        let ggaunt = this.setGGauntlet(this.config.ggauntlets, 0);
         this.kokiri = rgba(k.r, k.g, k.b, k.a);
         this.goron = rgba(g.r, g.g, g.b, g.a);
         this.zora = rgba(z.r, z.g, z.b, z.a);
