@@ -1,6 +1,6 @@
 {
   "name": "CustomTunicRedux",
-  "version": "1.0.1-nightly@b5f8a10",
+  "version": "1.0.1-nightly@aa45be9",
   "description": "",
   "main": "CustomTunicRedux.js",
   "scripts": {
@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "core": "Z64Lib",
-  "date": "Mon, 11 Oct 2021 14:28:29 GMT",
-  "commit": "b5f8a10"
+  "date": "Mon, 25 Jul 2022 22:16:50 GMT",
+  "commit": "aa45be9"
 }

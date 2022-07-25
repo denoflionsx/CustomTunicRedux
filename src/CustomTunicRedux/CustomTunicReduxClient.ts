@@ -93,7 +93,7 @@ export default class CustomTunicReduxClient {
 
         bus.on(Z64OnlineEvents.LOCAL_MODEL_REFRESH, this.onRefresh.bind(this));
         bus.on(Z64OnlineEvents.LOCAL_MODEL_CHANGE_FINISHED, this.onRefresh.bind(this));
-        bus.on(Z64.OotEvents.ON_SCENE_CHANGE, this.onRefresh.bind(this));
+        bus.on(Z64.Z64Events.ON_SCENE_CHANGE, this.onRefresh.bind(this));
     }
 
     @onViUpdate()
